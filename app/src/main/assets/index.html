@@ -211,7 +211,7 @@
     else {state.date=new Date(state.date.getFullYear(),state.date.getMonth()+dir,1);state.selected=new Date(state.date);}
     requestData();
   }
-  function today(){state.date=new Date(now.getFullYear(),now.getMonth(),now.getDate());state.selected=new Date(state.date);requestData();}
+  function today(){const current=new Date();state.date=new Date(current.getFullYear(),current.getMonth(),current.getDate());state.selected=new Date(state.date);requestData();}
   function setSelected(y,m,d){state.selected=new Date(y,m,d);if(state.mode==='month'&&m!==state.date.getMonth()){state.date=new Date(y,m,1);requestData();}else{draw();}}
   function monthCells(){
     const year=state.date.getFullYear(),month=state.date.getMonth();
@@ -278,7 +278,10 @@
     }catch(e){state.status='데이터 오류';draw();}
   }
   function permission(granted){state.status=granted?'일정 연결 중':'캘린더 권한 필요';if(granted)requestData();else {el('refreshLine').textContent='';draw();}}
-  window.CalendarUI={setMode,move,today,select:setSelected,openSettings,closeSettings,refresh:requestData,receiveNative,permission};
+  // A resumed Android activity may reuse this WebView instead of reloading the page.
+  // Re-select the device's current local date whenever the app comes to the foreground.
+  function onAppResume(){today();}
+  window.CalendarUI={setMode,move,today,onAppResume,select:setSelected,openSettings,closeSettings,refresh:requestData,receiveNative,permission};
   setInterval(()=>{el('clock').textContent=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',hour12:false});},15000);
   requestData();
 })();
