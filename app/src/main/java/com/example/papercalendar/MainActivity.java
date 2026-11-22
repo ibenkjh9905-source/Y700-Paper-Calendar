@@ -201,7 +201,10 @@ public class MainActivity extends Activity {
         super.onResume();
         mainHandler.removeCallbacks(refreshTask);
         mainHandler.postDelayed(refreshTask, 60_000);
-        if (pageReady && hasPermission()) loadCalendar(requestedYear, requestedMonthZeroBased);
+        // Restoring a background activity does not reload index.html. The WebView
+        // must explicitly reset its selected date to *today*, then request events
+        // for the current month from the device's calendar provider.
+        if (pageReady) pushJavaScript("CalendarUI.onAppResume()");
     }
 
     @Override protected void onPause() {
